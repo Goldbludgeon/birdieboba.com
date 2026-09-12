@@ -2,7 +2,7 @@ let audio = [];
 
 async function loadAudio() {
   const res = await fetch('./audio.json');
-  sounds = await res.json();
+  audio = await res.json();
 }
 
 function pickWeightedAudio() {
@@ -17,7 +17,7 @@ function pickWeightedAudio() {
 function playRandomAudio() {
   if (!audio.length) return;
   const src = pickWeightedAudio();
-  const audio = new Audio(src);
+  const clip = new Audio(src);
   clip.play().catch(() => {});
 }
 
