@@ -1,24 +1,24 @@
-let sounds = [];
+let audio = [];
 
 async function loadAudio() {
-  const res = await fetch('.audio/audio.json');
+  const res = await fetch('./audio.json');
   sounds = await res.json();
 }
 
 function pickWeightedAudio() {
-  const total = sounds.reduce((sum, s) => sum + s.weight, 0);
+  const total = audio.reduce((sum, a) => sum + a.weight, 0);
   let random = Math.random() * total;
-  for (const s of sounds) {
-    if (random < s.weight) return s.src;
-    random -= s.weight;
+  for (const a of audio) {
+    if (random < a.weight) return a.src;
+    random -= a.weight;
   }
 }
 
 function playRandomAudio() {
-  if (!sounds.length) return;
+  if (!audio.length) return;
   const src = pickWeightedAudio();
   const audio = new Audio(src);
-  audio.play().catch(() => {});
+  clip.play().catch(() => {});
 }
 
 const photo = document.getElementById('photo');
