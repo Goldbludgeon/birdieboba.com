@@ -66,19 +66,7 @@
 
   <audio id="clip" src="./audio/wiwiwi.mp3" preload="auto"></audio>
 
-  <script>
-    const photo = document.getElementById('photo');
-    const clip = document.getElementById('clip');
-    const bgPicker = document.getElementById('bgPicker');
-
-    photo.addEventListener('click', () => {
-      clip.currentTime = 0;
-      clip.play().catch(() => {});
-    });
-
-    bgPicker.addEventListener('input', (e) => {
-      document.body.style.background = e.target.value;
-    });
+  <script src="./app.js">
   </script>
 
 </body>
