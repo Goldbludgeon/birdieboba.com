@@ -1,11 +1,11 @@
 let sounds = [];
 
-async function loadSounds() {
+async function loadAudio() {
   const res = await fetch('./audio.json');
   sounds = await res.json();
 }
 
-function pickWeightedSound() {
+function pickWeightedAudio() {
   const total = sounds.reduce((sum, s) => sum + s.weight, 0);
   let random = Math.random() * total;
   for (const s of sounds) {
@@ -14,9 +14,9 @@ function pickWeightedSound() {
   }
 }
 
-function playRandomSound() {
+function playRandomAudio() {
   if (!sounds.length) return;
-  const src = pickWeightedSound();
+  const src = pickWeightedAudio();
   const audio = new Audio(src);
   audio.play().catch(() => {});
 }
@@ -24,10 +24,10 @@ function playRandomSound() {
 const photo = document.getElementById('photo');
 const bgPicker = document.getElementById('bgPicker');
 
-photo.addEventListener('click', playRandomSound);
+photo.addEventListener('click', playRandomAudio);
 
 bgPicker.addEventListener('input', (e) => {
   document.body.style.background = e.target.value;
 });
 
-loadSounds();
+loadAudio();
