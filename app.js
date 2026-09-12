@@ -1,7 +1,7 @@
 let sounds = [];
 
 async function loadAudio() {
-  const res = await fetch('./audio.json');
+  const res = await fetch('.audio/audio.json');
   sounds = await res.json();
 }
 
