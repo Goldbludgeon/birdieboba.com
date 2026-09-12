@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const soundsDir = './audio';
+const audioDir = './audio';
 const configFile = './audio.config.json';
 const outFile = './audio.json';
 const ext = ['.mp3', '.ogg', '.wav', '.m4a', '.webm'];
