@@ -51,6 +51,28 @@
     }
 
     #photo:active { transform: scale(0.95); }
+
+    footer {
+      position: fixed;
+      bottom: 1rem;
+      display: flex;
+      gap: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(4px);
+    }
+
+    footer a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      opacity: 0.9;
+      transition: opacity 0.15s ease;
+    }
+
+    footer a:hover { opacity: 1; text-decoration: underline; }
+
   </style>
 </head>
 <body>
@@ -64,6 +86,15 @@
     src="./img/blorb.png"
     alt="wiwiwi"
   />
+
+  <footer>
+    <a href="https://twitch.tv/birdieboba" target="_blank" rel="noopener">
+      <img src="./img/glitch_flat_purple.png" alt="https://twitch.tv/birdieboba">
+    </a>
+    <a href="https://https://discord.gg/A8r5MZqPyu" target="_blank" rel="noopener">
+      <img src="./img/discord_symbol_blurple.png" alt="https://discord.gg/A8r5MZqPyu">
+    </a>
+  </footer>
 
   <script src="./app.js"></script>
 
