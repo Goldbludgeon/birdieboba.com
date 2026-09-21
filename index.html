@@ -73,6 +73,30 @@
 
     footer a:hover { opacity: 1; text-decoration: underline; }
 
+    .timer-container {
+      position: fixed;
+      bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .timer-label {
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+      font-weight: 500;
+      opacity: 0.85;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    #timer {
+      font-size: clamp(1rem, 3.5vw, 1.4rem);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
   </style>
 </head>
 <body>
@@ -86,6 +110,11 @@
     src="./img/blorb.png"
     alt="wiwiwi"
   />
+
+  <div class="timer-container">
+    <div class="timer-label"> Countdown until Bobathon!!!</div>
+    <div id="timer"> Loading timer...</div>
+  </div>
 
   <footer>
     <a href="https://twitch.tv/birdieboba" target="_blank" rel="noopener">
