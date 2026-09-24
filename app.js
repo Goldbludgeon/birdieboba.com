@@ -55,3 +55,9 @@ function updateTimer() {
 
 setInterval(updateTimer, 1000);
 updateTimer();
+
+// Twitch embed
+const twitchChannel = 'birdieboba';
+const twitchFrame = document.getElementById('twitch-embed');
+const parent = window.location.hostname;
+twitchFrame.src = `https://player.twitch.tv/?channel=${encodeURIComponent(twitchChannel)}&parent=${encodeURIComponent(parent)}&autoplay=true`;
