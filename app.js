@@ -60,4 +60,5 @@ updateTimer();
 const twitchChannel = 'birdieboba';
 const twitchFrame = document.getElementById('twitch-embed');
 const parent = window.location.hostname;
-twitchFrame.src = `https://player.twitch.tv/?channel=${encodeURIComponent(twitchChannel)}&parent=${encodeURIComponent(parent)}&autoplay=true`;
+const twitchSrc = `https://player.twitch.tv/?channel=${encodeURIComponent(twitchChannel)}&parent=${encodeURIComponent(parent)}&autoplay=false`;
+twitchFrame.src=twitchSrc;

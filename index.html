@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blorbie Boba</title>
-<style>
+  <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -114,6 +114,31 @@
     font-weight: 700;
     letter-spacing: 0.05em;
   }
+
+  @media (max-width: 600px) {
+    .twitch-container {
+    display: none;
+    }
+  }
+
+  .twitch-fallback {
+    display: block;
+    margin-top: 2rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    background: #9146ff;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  @media (min-width: 601px) {
+  .twitch-fallback {
+    display: none;
+    }
+  }
+}
+
 </style>
 </head>
 <body>
@@ -132,6 +157,11 @@
     <iframe id="twitch-embed" src="" allowfullscreen="true">
     </iframe>
   </div>
+
+  <a class="twitch-fallback" href="https://www.twitch.tv/birdieboba" target="_blank" rel="noopener">
+  Watch Birdieboba on Twitch!
+  </a>
+
 
   <div class="timer-container">
     <div class="timer-label"> Countdown until Bobathon!!!</div>
