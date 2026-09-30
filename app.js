@@ -41,7 +41,7 @@ function updateTimer() {
   const distance = targetDate - now;
 
   if (distance <= 0) {
-    timerEl.textContent = "Time's up!";
+    timerEl.textContent = "Bobathon is on!";
     return;
   }
 
