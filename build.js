@@ -24,7 +24,7 @@ fs.writeFileSync(audioOutFile, JSON.stringify(audio));
 console.log(`Found ${audio.length} audio files:`, audio);
 
 // --- Gallery build ---
-const imagesDir = './images';
+const imagesDir = './img/gallery';
 const galleryConfigFile = './gallery.config.json';
 const galleryOutFile = './gallery.json';
 const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
