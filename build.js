@@ -21,11 +21,10 @@ const audio = audioFiles.map(f => ({
 }));
 
 fs.writeFileSync(audioOutFile, JSON.stringify(audio));
-console.log(`Found ${audio.length} audio files:`, audio);
+console.log(`Found ${audio.length} audio files.`);
 
 // --- Gallery build ---
 const imagesDir = './img/gallery';
-const galleryConfigFile = './gallery.config.json';
 const galleryOutFile = './gallery.json';
 const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
 
@@ -36,22 +35,9 @@ if (!fs.existsSync(imagesDir)) {
 const imageFiles = fs.readdirSync(imagesDir)
   .filter(f => imageExts.includes(path.extname(f).toLowerCase()));
 
-let galleryConfig = {};
-if (fs.existsSync(galleryConfigFile)) {
-  galleryConfig = JSON.parse(fs.readFileSync(galleryConfigFile, 'utf8'));
-}
-
-const gallery = imageFiles.map(f => {
-  const name = path.parse(f).name;
-  const meta = galleryConfig[name] || {};
-  return {
-    url: `./images/${f}`,
-    author: meta.author || 'Unknown',
-    authorUrl: meta.authorUrl || '#',
-    caption: meta.caption || '',
-    nsfw: !!meta.nsfw
-  };
-});
+const gallery = imageFiles.map(f => ({
+  url: `./img/gallery/${f}`
+}));
 
 fs.writeFileSync(galleryOutFile, JSON.stringify(gallery));
-console.log(`Found ${gallery.length} images:`, gallery);
+console.log(`Found ${gallery.length} images.`);
