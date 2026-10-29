@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      min-height: 100vh;
+      padding: 2rem 1rem 5rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+    }
+
+    .back {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(4px);
+      font-weight: 500;
+      z-index: 10;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #2a2a2a;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      position: relative;
+    }
+
+    .card:hover { transform: translateY(-4px); }
+
+    .card .img-wrap {
+      position: relative;
+      width: 100%;
+      height: 220px;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card img.blur {
+      filter: blur(24px) brightness(0.5);
+    }
+
+    .nsfw-badge {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+    }
+
+    .card.revealed .img-wrap img.blur {
+      filter: none;
+    }
+
+    .card.revealed .nsfw-badge {
+      display: none;
+    }
+
+    .reveal-btn {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      background: #ff4757;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    .card.revealed .reveal-btn {
+      display: none;
+    }
+
+    .card .info {
+      padding: 1rem;
+    }
+
+    .card .author {
+      color: #8ab4f8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .card .caption {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 2rem;
+    }
+
+    .lightbox.active { display: flex; }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 0.5rem;
+    }
+
+    .lightbox img.blur {
+      filter: blur(40px) brightness(0.5);
+    }
+
+    .lightbox .close,
+    .lightbox .prev,
+    .lightbox .next {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox .close { top: 1rem; right: 1rem; }
+    .lightbox .prev { left: 1rem; top: 50%; transform: translateY(-50%); }
+    .lightbox .next { right: 1rem; top: 50%; transform: translateY(-50%); }
+
+    .lightbox .reveal-lb {
+      position: absolute;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff4757;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .lightbox .meta {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 0;
+      right: 0;
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    .lightbox .meta a { color: #8ab4f8; }
+  </style>
+</head>
+<body>
+
+  <a class="back" href="./index.html">← Back</a>
+
+  <h1>Gallery</h1>
+
+  <div class="grid" id="gallery">Loading gallery...</div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="close" id="lbClose">×</button>
+    <button class="prev" id="lbPrev">‹</button>
+    <button class="next" id="lbNext">›</button>
+    <img id="lbImg" src="" alt="" />
+    <button class="reveal-lb" id="lbReveal">Reveal NSFW</button>
+    <div class="meta" id="lbMeta"></div>
+  </div>
+
+  <script>
+    const galleryEl = document.getElementById('gallery');
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbMeta = document.getElementById('lbMeta');
+    const lbClose = document.getElementById('lbClose');
+    const lbPrev = document.getElementById('lbPrev');
+    const lbNext = document.getElementById('lbNext');
+    const lbReveal = document.getElementById('lbReveal');
+
+    let images = [];
+    let currentIndex = 0;
+    let revealed = new Set();
+
+    async function loadGallery() {
+      try {
+        const res = await fetch('./gallery.json');
+        images = await res.json();
+        renderGallery();
+      } catch (err) {
+        galleryEl.textContent = 'Failed to load gallery.';
+      }
+    }
+
+    function renderGallery() {
+      galleryEl.innerHTML = images.map((item, i) => {
+        const isNsfw = item.nsfw && !revealed.has(i);
+        return `
+          <div class="card" data-index="${i}">
+            <div class="img-wrap">
+              <img class="${item.nsfw && !revealed.has(i) ? 'blur' : ''}" src="${item.url}" alt="${item.caption || ''}" loading="lazy" />
+              ${item.nsfw ? `<div class="nsfw-badge">NSFW</div>` : ''}
+              ${item.nsfw ? `<button class="reveal-btn" data-index="${i}">Reveal</button>` : ''}
+            </div>
+            <div class="info">
+              <a class="author" href="${item.authorUrl || '#'}" target="_blank" rel="noopener">${escapeHtml(item.author || 'Unknown')}</a>
+              ${item.caption ? `<div class="caption">${escapeHtml(item.caption)}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (e.target.classList.contains('reveal-btn')) {
+            e.stopPropagation();
+            revealCard(Number(e.target.dataset.index));
+            return;
+          }
+          openLightbox(Number(card.dataset.index));
+        });
+      });
+    }
+
+    function revealCard(index) {
+      revealed.add(index);
+      renderGallery();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function openLightbox(index) {
+      currentIndex = index;
+      updateLightbox();
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function updateLightbox() {
+      const item = images[currentIndex];
+      const isRevealed = revealed.has(currentIndex);
+
+      lbImg.src = item.url;
+      lbImg.alt = item.caption || '';
+      lbImg.className = item.nsfw && !isRevealed ? 'blur' : '';
+      lbMeta.innerHTML = `
+        By <a href="${item.authorUrl || '#'}" target="_blank" rel="noopener">${escapeHtml(item.author || 'Unknown')}</a>
+        ${item.caption ? `<br>${escapeHtml(item.caption)}` : ''}
+      `;
+
+      lbReveal.style.display = item.nsfw && !isRevealed ? 'block' : 'none';
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % images.length;
+      updateLightbox();
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      updateLightbox();
+    }
+
+    lbClose.addEventListener('click', closeLightbox);
+    lbNext.addEventListener('click', (e) => { e.stopPropagation(); nextImage(); });
+    lbPrev.addEventListener('click', (e) => { e.stopPropagation(); prevImage(); });
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+    lbReveal.addEventListener('click', (e) => {
+      e.stopPropagation();
+      revealed.add(currentIndex);
+      updateLightbox();
+      renderGallery();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('active')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+    });
+
+    loadGallery();
+  </script>
+
+</body>
+</html>

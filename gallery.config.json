@@ -1,0 +1,14 @@
+[
+  {
+    "url": "./images/photo1.jpg",
+    "author": "Artist One",
+    "authorUrl": "https://example.com/artist1",
+    "caption": "Sunset over the mountains"
+  },
+  {
+    "url": "./images/photo2.jpg",
+    "author": "Artist Two",
+    "authorUrl": "https://example.com/artist2",
+    "caption": "City lights at night"
+  }
+]
