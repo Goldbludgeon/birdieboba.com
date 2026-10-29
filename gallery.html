@@ -78,6 +78,43 @@
     }
 
     .grid img:hover { transform: scale(1.02); }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 2rem;
+    }
+
+    .lightbox.active { display: flex; }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 0.5rem;
+    }
+
+    .lightbox .close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -88,12 +125,21 @@
     <input type="color" id="bgPicker" value="#6c5ce7" />
   </label>
 
-  <h1>Gallery</h1>
+  <h1>Fan Art Gallery!</h1>
 
   <div class="grid" id="gallery">Loading...</div>
 
+  <div class="lightbox" id="lightbox">
+    <button class="close" id="lbClose">×</button>
+    <img id="lbImg" src="" alt="Expanded image" />
+  </div>
+
   <script>
     const bgPicker = document.getElementById('bgPicker');
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbClose = document.getElementById('lbClose');
+    const galleryEl = document.getElementById('gallery');
 
     const savedColor = localStorage.getItem('bgColor');
     if (savedColor) {
@@ -111,14 +157,41 @@
       try {
         const res = await fetch('./gallery.json');
         const images = await res.json();
-        const grid = document.getElementById('gallery');
-        grid.innerHTML = images.map(item => `
-          <img src="${item.url}" alt="Gallery image" loading="lazy" />
+        galleryEl.innerHTML = images.map((item, i) => `
+          <img src="${item.url}" alt="Gallery image" loading="lazy" data-index="${i}" />
         `).join('');
+
+        document.querySelectorAll('.grid img').forEach(img => {
+          img.addEventListener('click', () => openLightbox(Number(img.dataset.index)));
+        });
       } catch (err) {
-        document.getElementById('gallery').textContent = 'Failed to load gallery.';
+        galleryEl.textContent = 'Failed to load gallery.';
       }
     }
+
+    function openLightbox(index) {
+      fetch('./gallery.json')
+        .then(r => r.json())
+        .then(images => {
+          lbImg.src = images[index].url;
+          lightbox.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        });
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    lbClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
 
     loadGallery();
   </script>
