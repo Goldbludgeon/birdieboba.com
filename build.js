@@ -1,43 +1,83 @@
 const fs = require('fs');
 const path = require('path');
+const { S3Client, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
+const AUDIO_EXTENSIONS = ['.mp3', '.ogg', '.wav', '.m4a', '.webm'];
 
 // --- Audio build ---
-const audioDir = './audio';
-const audioConfigFile = './audio.config.json';
-const audioOutFile = './audio.json';
-const audioExts = ['.mp3', '.ogg', '.wav', '.m4a', '.webm'];
+function buildAudio() {
+  const audioDir = './audio';
+  const configFile = './audio.config.json';
+  const outFile = './audio.json';
 
-const audioFiles = fs.readdirSync(audioDir)
-  .filter(f => audioExts.includes(path.extname(f).toLowerCase()));
+  const files = fs.readdirSync(audioDir)
+    .filter(f => AUDIO_EXTENSIONS.includes(path.extname(f).toLowerCase()));
 
-let audioConfig = {};
-if (fs.existsSync(audioConfigFile)) {
-  audioConfig = JSON.parse(fs.readFileSync(audioConfigFile, 'utf8'));
+  let config = {};
+  if (fs.existsSync(configFile)) {
+    config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+  }
+
+  const audio = files.map(f => ({
+    src: `./audio/${f}`,
+    weight: config[f] || 1
+  }));
+
+  fs.writeFileSync(outFile, JSON.stringify(audio));
+  console.log(`Found ${audio.length} audio files.`);
 }
 
-const audio = audioFiles.map(f => ({
-  src: `./audio/${f}`,
-  weight: audioConfig[f] || 1
-}));
+// --- Gallery build from R2 ---
+async function buildGallery() {
+  const {
+    R2_ACCOUNT_ID,
+    R2_BUCKET_NAME,
+    R2_ACCESS_KEY_ID,
+    R2_SECRET_ACCESS_KEY,
+    R2_PUBLIC_URL
+  } = process.env;
 
-fs.writeFileSync(audioOutFile, JSON.stringify(audio));
-console.log(`Found ${audio.length} audio files.`);
+  if (!R2_ACCOUNT_ID || !R2_BUCKET_NAME || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_PUBLIC_URL) {
+    console.warn('R2 environment variables are missing. Skipping gallery.json generation.');
+    return;
+  }
 
-// --- Gallery build ---
-const imagesDir = './img/gallery';
-const galleryOutFile = './gallery.json';
-const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
+  const s3 = new S3Client({
+    region: 'auto',
+    endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: R2_ACCESS_KEY_ID,
+      secretAccessKey: R2_SECRET_ACCESS_KEY
+    }
+  });
 
-if (!fs.existsSync(imagesDir)) {
-  fs.mkdirSync(imagesDir, { recursive: true });
+  const objects = [];
+  let ContinuationToken;
+
+  do {
+    const command = new ListObjectsV2Command({
+      Bucket: R2_BUCKET_NAME,
+      ContinuationToken
+    });
+    const response = await s3.send(command);
+    objects.push(...(response.Contents || []));
+    ContinuationToken = response.NextContinuationToken;
+  } while (ContinuationToken);
+
+  const images = objects
+    .map(obj => obj.Key)
+    .filter(key => IMAGE_EXTENSIONS.some(ext => key.toLowerCase().endsWith(ext)))
+    .map(key => ({
+      url: `${R2_PUBLIC_URL.replace(/\/$/, '')}/${key}`
+    }));
+
+  fs.writeFileSync('./gallery.json', JSON.stringify(images, null, 2));
+  console.log(`Found ${images.length} gallery images from R2.`);
 }
 
-const imageFiles = fs.readdirSync(imagesDir)
-  .filter(f => imageExts.includes(path.extname(f).toLowerCase()));
-
-const gallery = imageFiles.map(f => ({
-  url: `./img/gallery/${f}`
-}));
-
-fs.writeFileSync(galleryOutFile, JSON.stringify(gallery));
-console.log(`Found ${gallery.length} images.`);
+// --- Run ---
+(async () => {
+  buildAudio();
+  await buildGallery();
+})();
