@@ -1,3 +1,11 @@
+console.log('Build env check:');
+console.log('R2_ACCOUNT_ID:', process.env.R2_ACCOUNT_ID ? 'present' : 'missing');
+console.log('R2_BUCKET_NAME:', process.env.R2_BUCKET_NAME ? 'present' : 'missing');
+console.log('R2_ACCESS_KEY_ID:', process.env.R2_ACCESS_KEY_ID ? 'present' : 'missing');
+console.log('R2_SECRET_ACCESS_KEY:', process.env.R2_SECRET_ACCESS_KEY ? 'present' : 'missing');
+console.log('R2_PUBLIC_URL:', process.env.R2_PUBLIC_URL ? 'present' : 'missing');
+console.log('R2_PREFIX:', process.env.R2_PREFIX ? 'present' : 'missing');
+
 const fs = require('fs');
 const https = require('https');
 const crypto = require('crypto');
